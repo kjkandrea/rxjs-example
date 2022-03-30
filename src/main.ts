@@ -1,15 +1,28 @@
 import './style.css'
 import { api } from "./infrastructure/http/order";
-import {deliveries$, deliveryCompanies$, orderProducts$} from "./stream/order";
+import {
+	deliveries$,
+	deliveryCompanies$,
+	orderProductsByShippingNo$,
+	orderProducts$,
+	OrderProductsByShippingNo
+} from "./stream/order";
 
-const app = document.querySelector<HTMLDivElement>('#app')!
+const app = document.querySelector<HTMLDivElement>('#app');
 
-app.innerHTML = `
+if(app) app.innerHTML = `
   <h1>Hello RxJS!</h1>
+  <ul id="orders"></ul>
 `;
 
+const el = document.querySelector('#orders') as HTMLDivElement;
 (function main() {
-	const init = async () => {
+	const init = () => {
+		fetch()
+		subscribeDataStream()
+	}
+
+	const fetch = async () => {
 		const promises = Promise.all([
 			api.getOrderProducts(),
 			api.getDeliveries(),
@@ -21,6 +34,28 @@ app.innerHTML = `
 		deliveries$.next(deliveries)
 		deliveryCompanies$.next(deliveryCompanies)
 	}
+
+	const subscribeDataStream = () => orderProductsByShippingNo$.subscribe(render)
+
+	const render = (data: OrderProductsByShippingNo[]) => {
+		el.innerHTML = data.map(getHTMLTemplate).join("")
+	}
+
+	// export interface OrderProductsByShippingNo {
+	// 	shippingNo: number,
+	// 	address: string,
+	// 	products: { shippingNo: number, productName: string }[],
+	// 	deliveryCompanyName: string
+	// }
+
+	const getHTMLTemplate = (data: OrderProductsByShippingNo) => `
+		<li>
+			<h2>shippingNo : ${data.shippingNo}</h2>
+			<p>배송지 : ${data.address}</p>
+			<p>배송사 : ${data.deliveryCompanyName}</p>
+			<p>구매 상품명 : ${data.products.map(({ productName }) => productName).join(', ')}</p>
+		</li>
+	`
 
 	init()
 }())

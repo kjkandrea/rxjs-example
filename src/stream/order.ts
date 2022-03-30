@@ -1,25 +1,28 @@
-import { Subject, combineLatest, map } from 'rxjs'
-import {orderProducts, deliveries, deliveryCompanies} from "../infrastructure/http/order/fixture";
-
-type TypeOfDelivery = typeof deliveries[number]
-interface Delivery extends TypeOfDelivery {
-	deliveryCompanyType: 'CJ'|'DHL'
-}
-
+import {Subject, combineLatest, map} from 'rxjs'
+import {orderProducts, deliveryCompanies} from "../infrastructure/http/order/fixture";
+import {Delivery} from "../infrastructure/http/order";
 
 export const orderProducts$ = new Subject<typeof orderProducts>()
 export const deliveries$ = new Subject<Delivery[]>()
 export const deliveryCompanies$ = new Subject<typeof deliveryCompanies>()
 
-const orderProductByDeliveryNo = combineLatest([orderProducts$, deliveries$, deliveryCompanies$]).pipe(
-	map(([orderProducts, deliveries, deliveryCompanies]) => {
-		return deliveries.map(({ shippingNo, address, deliveryCompanyType }) => ({
-			shippingNo,
-			address,
-			products: orderProducts.filter(product => product.shippingNo === shippingNo),
-			deliveryCompanyName: deliveryCompanies[deliveryCompanyType]
-		}))
-	})
-)
+export interface OrderProductsByShippingNo {
+	shippingNo: number,
+	address: string,
+	products: { shippingNo: number, productName: string }[],
+	deliveryCompanyName: string
+}
 
-orderProductByDeliveryNo.subscribe(console.log)
+export const orderProductsByShippingNo$ = combineLatest([orderProducts$, deliveries$, deliveryCompanies$])
+	.pipe<OrderProductsByShippingNo[]>(
+		map(([orderProducts, deliveries, deliveryCompanies]) => {
+			return deliveries.map(({shippingNo, address, deliveryCompanyType}) => ({
+				shippingNo,
+				address,
+				products: orderProducts.filter(product => product.shippingNo === shippingNo),
+				deliveryCompanyName: deliveryCompanies[deliveryCompanyType]
+			}))
+		})
+	)
+
+orderProductsByShippingNo$.subscribe(console.log)

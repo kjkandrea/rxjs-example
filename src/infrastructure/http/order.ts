@@ -7,9 +7,13 @@ const dummyPromise = <T>(dummyData: T): Promise<T> =>
 		}, 250);
 	});
 
+type TypeOfDelivery = typeof deliveries[number]
+export interface Delivery extends TypeOfDelivery {
+	deliveryCompanyType: 'CJ'|'DHL'
+}
 
 export const api = {
 	getOrderProducts: () => dummyPromise(orderProducts),
-	getDeliveries: () => dummyPromise(deliveries),
+	getDeliveries: () => dummyPromise(deliveries as Delivery[]),
 	getDeliveryCompanies: () => dummyPromise(deliveryCompanies)
 }
