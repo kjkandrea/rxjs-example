@@ -1,5 +1,5 @@
 import {BehaviorSubject, Subject, combineLatest, map} from 'rxjs'
-import {Delivery, OrderProduct, DeliveryCompanies} from "../infrastructure/http/order";
+import {Delivery, OrderProduct, DeliveryCompanies, api} from "../infrastructure/http/order";
 
 export const orderProducts$ = new BehaviorSubject<OrderProduct[]>([])
 export const deliveries$ = new Subject<Delivery[]>()
@@ -25,6 +25,18 @@ export const orderByShippingNo$ = combineLatest([orderProducts$, deliveries$, de
 				.filter(({ products }) => products.length)
 		})
 	)
+
+export const fetchAll = async () => {
+	const [orderProducts, deliveries, deliveryCompanies] = await Promise.all([
+		api.getOrderProducts(),
+		api.getDeliveries(),
+		api.getDeliveryCompanies()
+	])
+
+	orderProducts$.next(orderProducts)
+	deliveries$.next(deliveries)
+	deliveryCompanies$.next(deliveryCompanies)
+}
 
 export const removeLastOrderProduct = () => {
 	const nextOrderProducts = orderProducts$.value

@@ -1,11 +1,9 @@
 import './style.css'
-import {api, OrderProduct} from "./infrastructure/http/order";
+import {OrderProduct} from "./infrastructure/http/order";
 import {
-	deliveries$,
-	deliveryCompanies$,
 	orderByShippingNo$,
 	orderProducts$,
-	OrderByShippingNo, removeLastOrderProduct
+	OrderByShippingNo, removeLastOrderProduct, fetchAll
 } from "./stream/order";
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -21,21 +19,9 @@ const removeProductButtonEl = document.querySelector('#remove-product') as HTMLB
 
 (function () {
 	const init = () => {
-		fetch() // promise ignored
+		fetchAll() // promise ignored
 		subscribeDataStream()
 		bindEvent()
-	}
-
-	const fetch = async () => {
-		const [orderProducts, deliveries, deliveryCompanies] = await Promise.all([
-			api.getOrderProducts(),
-			api.getDeliveries(),
-			api.getDeliveryCompanies()
-		])
-
-		orderProducts$.next(orderProducts)
-		deliveries$.next(deliveries)
-		deliveryCompanies$.next(deliveryCompanies)
 	}
 
 	const subscribeDataStream = () => {
