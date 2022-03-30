@@ -27,12 +27,11 @@ const removeProductButtonEl = document.querySelector('#remove-product') as HTMLB
 	}
 
 	const fetch = async () => {
-		const promises = Promise.all([
+		const [orderProducts, deliveries, deliveryCompanies] = await Promise.all([
 			api.getOrderProducts(),
 			api.getDeliveries(),
 			api.getDeliveryCompanies()
 		])
-		const [orderProducts, deliveries, deliveryCompanies] = await promises
 
 		orderProducts$.next(orderProducts)
 		deliveries$.next(deliveries)
