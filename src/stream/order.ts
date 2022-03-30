@@ -27,15 +27,9 @@ export const orderByShippingNo$ = combineLatest([orderProducts$, deliveries$, de
 	)
 
 export const fetchAll = async () => {
-	const [orderProducts, deliveries, deliveryCompanies] = await Promise.all([
-		api.getOrderProducts(),
-		api.getDeliveries(),
-		api.getDeliveryCompanies()
-	])
-
-	orderProducts$.next(orderProducts)
-	deliveries$.next(deliveries)
-	deliveryCompanies$.next(deliveryCompanies)
+	api.getOrderProducts().then(v => orderProducts$.next(v))
+	api.getDeliveries().then(v => deliveries$.next(v))
+	api.getDeliveryCompanies().then(v => deliveryCompanies$.next(v))
 }
 
 export const removeLastOrderProduct = () => {
