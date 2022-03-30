@@ -1,5 +1,6 @@
 import './style.css'
 import { api } from "./infrastructure/http/order";
+import {deliveries$, deliveryCompanies$, orderProducts$} from "./stream/order";
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
@@ -8,11 +9,18 @@ app.innerHTML = `
 `;
 
 (function main() {
-	const promises = Promise.all([
-		api.getDeliveries(),
-		api.getDeliveryCompanies(),
-		api.getOrderProducts()
-	])
+	const init = async () => {
+		const promises = Promise.all([
+			api.getOrderProducts(),
+			api.getDeliveries(),
+			api.getDeliveryCompanies()
+		])
+		const [orderProducts, deliveries, deliveryCompanies] = await promises
 
-	promises.then(console.log)
+		orderProducts$.next(orderProducts)
+		deliveries$.next(deliveries)
+		deliveryCompanies$.next(deliveryCompanies)
+	}
+
+	init()
 }())
