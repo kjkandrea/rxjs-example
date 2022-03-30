@@ -1,9 +1,9 @@
-import {BehaviorSubject, combineLatest, map} from 'rxjs'
+import {BehaviorSubject, Subject, combineLatest, map} from 'rxjs'
 import {Delivery, OrderProduct, DeliveryCompanies} from "../infrastructure/http/order";
 
 export const orderProducts$ = new BehaviorSubject<OrderProduct[]>([])
-export const deliveries$ = new BehaviorSubject<Delivery[]>([])
-export const deliveryCompanies$ = new BehaviorSubject<DeliveryCompanies|null>(null)
+export const deliveries$ = new Subject<Delivery[]>()
+export const deliveryCompanies$ = new Subject<DeliveryCompanies>()
 
 export interface OrderByShippingNo {
 	shippingNo: number,
@@ -20,7 +20,7 @@ export const orderByShippingNo$ = combineLatest([orderProducts$, deliveries$, de
 					shippingNo,
 					address,
 					products: orderProducts.filter(product => product.shippingNo === shippingNo),
-					deliveryCompanyName: deliveryCompanies ? deliveryCompanies[deliveryCompanyType] : 'unknown'
+					deliveryCompanyName: deliveryCompanies[deliveryCompanyType]
 				}))
 				.filter(({ products }) => products.length)
 		})
@@ -32,4 +32,4 @@ export const removeLastOrderProduct = () => {
 	orderProducts$.next(nextOrderProducts)
 }
 
-orderByShippingNo$.subscribe(console.log)
+orderByShippingNo$.subscribe(v => v.length && console.log(v))

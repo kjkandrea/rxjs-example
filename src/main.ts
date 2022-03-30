@@ -48,8 +48,9 @@ const removeProductButtonEl = document.querySelector('#remove-product') as HTMLB
 	}
 
 	const renderButtonProductName = (data: OrderProduct[]) => {
-		const el = removeProductButtonEl.querySelector('[data-name="productName"]')
-		if(el) el.innerHTML = data.at(-1)?.productName ?? ''
+		const el = removeProductButtonEl.querySelector('[data-name="productName"]') as HTMLSpanElement;
+		const lastProduct = data.at(-1)
+		el.innerHTML = lastProduct ? lastProduct.productName : '';
 	}
 
 	const getHTMLTemplate = (data: OrderByShippingNo) => `
