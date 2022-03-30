@@ -1,8 +1,18 @@
 import './style.css'
+import { api } from "./infrastructure/http/order";
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
 app.innerHTML = `
-  <h1>Hello Vite!</h1>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
-`
+  <h1>Hello RxJS!</h1>
+`;
+
+(function main() {
+	const promises = Promise.all([
+		api.getDeliveries(),
+		api.getDeliveryCompanies(),
+		api.getOrderProducts()
+	])
+
+	promises.then(console.log)
+}())
