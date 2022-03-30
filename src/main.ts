@@ -1,25 +1,28 @@
 import './style.css'
-import { api } from "./infrastructure/http/order";
+import {api, OrderProduct} from "./infrastructure/http/order";
 import {
 	deliveries$,
 	deliveryCompanies$,
 	orderByShippingNo$,
 	orderProducts$,
-	OrderByShippingNo
+	OrderByShippingNo, removeLastOrderProduct
 } from "./stream/order";
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
 if(app) app.innerHTML = `
   <h1>Hello RxJS!</h1>
+  <button id="remove-product"><span data-name="productName"></span> 상품 주문 취소</button>
   <ul id="orders"></ul>
 `;
 
 const el = document.querySelector('#orders') as HTMLDivElement;
+const removeProductButtonEl = document.querySelector('#remove-product') as HTMLButtonElement;
 (function main() {
 	const init = () => {
 		fetch() // promise ignored
 		subscribeDataStream()
+		bindEvent()
 	}
 
 	const fetch = async () => {
@@ -35,10 +38,18 @@ const el = document.querySelector('#orders') as HTMLDivElement;
 		deliveryCompanies$.next(deliveryCompanies)
 	}
 
-	const subscribeDataStream = () => orderByShippingNo$.subscribe(render)
+	const subscribeDataStream = () => {
+		orderByShippingNo$.subscribe(renderOrders)
+		orderProducts$.subscribe(renderButtonProductName)
+	}
 
-	const render = (data: OrderByShippingNo[]) => {
+	const renderOrders = (data: OrderByShippingNo[]) => {
 		el.innerHTML = data.map(getHTMLTemplate).join("")
+	}
+
+	const renderButtonProductName = (data: OrderProduct[]) => {
+		const el = removeProductButtonEl.querySelector('[data-name="productName"]')
+		if(el) el.innerHTML = data.at(-1)?.productName ?? ''
 	}
 
 	const getHTMLTemplate = (data: OrderByShippingNo) => `
@@ -49,6 +60,10 @@ const el = document.querySelector('#orders') as HTMLDivElement;
 			<p>구매 상품명 : ${data.products.map(({ productName }) => productName).join(', ')}</p>
 		</li>
 	`
+
+	const bindEvent = () => {
+		removeProductButtonEl.addEventListener('click', () => removeLastOrderProduct())
+	}
 
 	init()
 }())

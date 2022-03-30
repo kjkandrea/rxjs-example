@@ -4,7 +4,7 @@ export const orderProducts = [
 		productName: '멋져상품'
 	},
 	{
-		shippingNo: 1,
+		shippingNo: 2,
 		productName: '대단해상품'
 	},
 	{

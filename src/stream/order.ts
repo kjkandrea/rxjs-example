@@ -1,10 +1,9 @@
-import {Subject, combineLatest, map} from 'rxjs'
-import {orderProducts, deliveryCompanies} from "../infrastructure/http/order/fixture";
-import {Delivery} from "../infrastructure/http/order";
+import {BehaviorSubject, combineLatest, map} from 'rxjs'
+import {Delivery, OrderProduct, DeliveryCompanies} from "../infrastructure/http/order";
 
-export const orderProducts$ = new Subject<typeof orderProducts>()
-export const deliveries$ = new Subject<Delivery[]>()
-export const deliveryCompanies$ = new Subject<typeof deliveryCompanies>()
+export const orderProducts$ = new BehaviorSubject<OrderProduct[]>([])
+export const deliveries$ = new BehaviorSubject<Delivery[]>([])
+export const deliveryCompanies$ = new BehaviorSubject<DeliveryCompanies|null>(null)
 
 export interface OrderByShippingNo {
 	shippingNo: number,
@@ -16,13 +15,21 @@ export interface OrderByShippingNo {
 export const orderByShippingNo$ = combineLatest([orderProducts$, deliveries$, deliveryCompanies$])
 	.pipe<OrderByShippingNo[]>(
 		map(([orderProducts, deliveries, deliveryCompanies]) => {
-			return deliveries.map(({shippingNo, address, deliveryCompanyType}) => ({
-				shippingNo,
-				address,
-				products: orderProducts.filter(product => product.shippingNo === shippingNo),
-				deliveryCompanyName: deliveryCompanies[deliveryCompanyType]
-			}))
+			return deliveries
+				.map(({shippingNo, address, deliveryCompanyType}) => ({
+					shippingNo,
+					address,
+					products: orderProducts.filter(product => product.shippingNo === shippingNo),
+					deliveryCompanyName: deliveryCompanies ? deliveryCompanies[deliveryCompanyType] : 'unknown'
+				}))
+				.filter(({ products }) => products.length)
 		})
 	)
+
+export const removeLastOrderProduct = () => {
+	const nextOrderProducts = orderProducts$.value
+	nextOrderProducts.pop()
+	orderProducts$.next(nextOrderProducts)
+}
 
 orderByShippingNo$.subscribe(console.log)
