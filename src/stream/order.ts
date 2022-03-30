@@ -6,15 +6,15 @@ export const orderProducts$ = new Subject<typeof orderProducts>()
 export const deliveries$ = new Subject<Delivery[]>()
 export const deliveryCompanies$ = new Subject<typeof deliveryCompanies>()
 
-export interface OrderProductsByShippingNo {
+export interface OrderByShippingNo {
 	shippingNo: number,
 	address: string,
 	products: { shippingNo: number, productName: string }[],
 	deliveryCompanyName: string
 }
 
-export const orderProductsByShippingNo$ = combineLatest([orderProducts$, deliveries$, deliveryCompanies$])
-	.pipe<OrderProductsByShippingNo[]>(
+export const orderByShippingNo$ = combineLatest([orderProducts$, deliveries$, deliveryCompanies$])
+	.pipe<OrderByShippingNo[]>(
 		map(([orderProducts, deliveries, deliveryCompanies]) => {
 			return deliveries.map(({shippingNo, address, deliveryCompanyType}) => ({
 				shippingNo,
@@ -25,4 +25,4 @@ export const orderProductsByShippingNo$ = combineLatest([orderProducts$, deliver
 		})
 	)
 
-orderProductsByShippingNo$.subscribe(console.log)
+orderByShippingNo$.subscribe(console.log)

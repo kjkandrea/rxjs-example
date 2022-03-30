@@ -3,9 +3,9 @@ import { api } from "./infrastructure/http/order";
 import {
 	deliveries$,
 	deliveryCompanies$,
-	orderProductsByShippingNo$,
+	orderByShippingNo$,
 	orderProducts$,
-	OrderProductsByShippingNo
+	OrderByShippingNo
 } from "./stream/order";
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -18,7 +18,7 @@ if(app) app.innerHTML = `
 const el = document.querySelector('#orders') as HTMLDivElement;
 (function main() {
 	const init = () => {
-		fetch()
+		fetch() // promise ignored
 		subscribeDataStream()
 	}
 
@@ -35,20 +35,13 @@ const el = document.querySelector('#orders') as HTMLDivElement;
 		deliveryCompanies$.next(deliveryCompanies)
 	}
 
-	const subscribeDataStream = () => orderProductsByShippingNo$.subscribe(render)
+	const subscribeDataStream = () => orderByShippingNo$.subscribe(render)
 
-	const render = (data: OrderProductsByShippingNo[]) => {
+	const render = (data: OrderByShippingNo[]) => {
 		el.innerHTML = data.map(getHTMLTemplate).join("")
 	}
 
-	// export interface OrderProductsByShippingNo {
-	// 	shippingNo: number,
-	// 	address: string,
-	// 	products: { shippingNo: number, productName: string }[],
-	// 	deliveryCompanyName: string
-	// }
-
-	const getHTMLTemplate = (data: OrderProductsByShippingNo) => `
+	const getHTMLTemplate = (data: OrderByShippingNo) => `
 		<li>
 			<h2>shippingNo : ${data.shippingNo}</h2>
 			<p>배송지 : ${data.address}</p>
