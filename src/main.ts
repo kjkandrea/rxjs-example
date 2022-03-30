@@ -18,7 +18,8 @@ if(app) app.innerHTML = `
 
 const el = document.querySelector('#orders') as HTMLDivElement;
 const removeProductButtonEl = document.querySelector('#remove-product') as HTMLButtonElement;
-(function main() {
+
+(function () {
 	const init = () => {
 		fetch() // promise ignored
 		subscribeDataStream()
